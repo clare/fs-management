@@ -708,6 +708,11 @@ func CameraSnapshot(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "/var/spool/cptv/still.png")
 }
 
+// CameraRawSnapshot - Still raw image from Lepton camera
+func CameraRawSnapshot(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "/var/spool/cptv/still-raw.png")
+}
+
 func TimeHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "clock.html", nil)
 }
@@ -715,4 +720,9 @@ func TimeHandler(w http.ResponseWriter, r *http.Request) {
 // Rename page to change device name and group
 func Rename(w http.ResponseWriter, r *http.Request) {
 	tmpl.ExecuteTemplate(w, "rename.html", nil)
+}
+
+// Rename page to change device name and group
+func Fever(w http.ResponseWriter, r *http.Request) {
+	tmpl.ExecuteTemplate(w, "fever.html", nil)
 }
