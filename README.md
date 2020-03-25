@@ -1,7 +1,7 @@
 # management-interface
 
-This is a small web server which supports for management and
-configuration of Cacophononator devices from the [The Cacophony
+This is a small web server for managing FeverScreen recording devices.
+It is forked from  [The Cacophony
 Project](https://cacophony.org.nz).
 
 ## Installing packr (will be done by make)
