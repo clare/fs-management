@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -481,4 +482,16 @@ func getListOfEvents(r *http.Request) ([]uint64, error) {
 		return nil, fmt.Errorf("failed to parse keys '%s' as a list of uint64: %v", keysStr, err)
 	}
 	return keys, nil
+}
+
+func (api *ManagementAPI) FrameMetadata(w http.ResponseWriter, r *http.Request) {
+
+	data, err := ioutil.ReadFile("/var/spool/cptv/metadata")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	var metadata map[string]interface{}
+	json.Unmarshal(data, &metadata)
+	json.NewEncoder(w).Encode(metadata)
 }
