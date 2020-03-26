@@ -2,8 +2,8 @@ project_name: management-interface
 
 release:
   github:
-    owner: TheCacophonyProject
-    name: management-interface
+    owner: feverscreen
+    name: fs-management
   name_template: '{{.Tag}}'
 
 builds:
