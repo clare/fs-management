@@ -1,51 +1,60 @@
 "use strict";
-window.onload = function() {
+
+let snapshotCount = 0;
+let snapshotLimit = 200;
+let image;
+let status;
+let statusMessage;
+
+window.onload = async function() {
+  image = document.getElementById("snapshot-image");
+  status = document.getElementById("snapshot-stopped");
+  statusMessage = document.getElementById("snapshot-stopped-message");
   const urlParams = new URLSearchParams(window.location.search);
-  if(urlParams.get('timeout') == "off")  {
+  if(urlParams.get('timeout') === "off")  {
     snapshotLimit = Number.MAX_SAFE_INTEGER;
   }
-  updateSnapshotLoop()
+  await updateSnapshotLoop();
 };
 
-var snapshotCount = 0;
-var snapshotLimit = 200;
-
-function restartCameraViewing() {
-  document.getElementById("snapshot-stopped").style.display = 'none';
-  document.getElementById("snapshot-image").style.display = '';
+async function restartCameraViewing() {
+  showImage();
   snapshotCount = 0;
-  updateSnapshotLoop();
+  await updateSnapshotLoop();
 }
 
-function updateSnapshotLoop() {
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.open("PUT", "/api/camera/snapshot", true);
-  xmlHttp.setRequestHeader("Authorization", "Basic "+btoa("admin:feathers"))
-  xmlHttp.onload = function() {
-    if (xmlHttp.status == 200) {
-      let snapshot = document.getElementById("snapshot-image")
-      snapshot.src = "/camera/snapshot?"+ new Date().getTime();
-      snapshotCount++;
-      if (snapshotCount < snapshotLimit) {
-        setTimeout(updateSnapshotLoop, 500);
-      } else {
-        stopSnapshots('Timeout for camera viewing.');
+async function updateSnapshotLoop() {
+  try {
+    await fetch({
+      method: 'PUT',
+      headers: {
+        "Authorization": `Basic ${btoa("admin:feathers")}`
       }
+    });
+    image.src = `/camera/snapshot?${new Date().getTime()}`;
+    snapshotCount++;
+    if (snapshotCount < snapshotLimit) {
+      setTimeout(updateSnapshotLoop, 500);
     } else {
-      console.log("status:", xmlHttp.status);
-      console.log("response:", xmlHttp.response);
-      stopSnapshots('Error getting new snapshot.')
+      stopSnapshots('Timeout for camera viewing.');
     }
-  }
-  xmlHttp.onerror = function(err) {
+  } catch(err) {
     console.log('error:', err);
     stopSnapshots('Error getting new snapshot');
   }
-  xmlHttp.send( null );
+}
+
+function showImage() {
+  status.style.display = 'none';
+  image.style.display = 'block';
+}
+
+function hideImage() {
+  status.style.display = 'block';
+  image.style.display = 'none';
 }
 
 function stopSnapshots(message) {
-  document.getElementById("snapshot-stopped-message").innerText = message;
-  document.getElementById("snapshot-stopped").style.display = '';
-  document.getElementById("snapshot-image").style.display = 'none';
+  statusMessage.innerText = message;
+  hideImage();
 }

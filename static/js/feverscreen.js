@@ -37,8 +37,13 @@ window.onload = async function() {
   const temperatureDisplay = document.getElementById("temperature_display");
   const ctx = main_canvas.getContext("2d");
 
-  const CAMERA_RAW = "/camera/snapshot-raw";
-  const CAMERA_METADATA = "/api/camera/metadata";
+  let prefix = "";
+  if (window.location.hostname === "localhost") {
+    prefix = "http://192.168.178.37";
+  }
+
+  const CAMERA_RAW = `${prefix}/camera/snapshot-raw`;
+  const CAMERA_METADATA = `${prefix}/api/camera/metadata`;
 
   document.getElementById("warmer").addEventListener("click", () => {
     setCalibrateTemperatureSafe(GCalibrate_temperature_celsius + 0.1);
@@ -106,12 +111,14 @@ window.onload = async function() {
       state = "normal";
       selectedButton = thumbNormal;
     }
-    temperatureDisplay.innerHtml = `${temp_celsius.toFixed(1)}&deg;&nbsp;C`;
+    temperatureDisplay.innerHTML = `${temp_celsius.toFixed(1)}&deg;&nbsp;C`;
     temperatureDiv.classList.add(`${state}-state`);
     for (const button of buttons) {
-      button.classList.add(
-        button === selectedButton ? "selected" : "unselected"
-      );
+      if (button === selectedButton) {
+        button.classList.add("selected");
+      } else {
+        button.classList.remove("selected");
+      }
     }
   }
 
@@ -163,7 +170,6 @@ window.onload = async function() {
       imgData.data[p + 3] = 255;
       p += 4;
     }
-    console.log("drawing frame");
     ctx.putImageData(imgData, 0, 0);
   }
 
@@ -177,7 +183,7 @@ window.onload = async function() {
             Authorization: `Basic ${btoa("admin:feathers")}`
           }
         }),
-        fetch(CAMERA_RAW, {
+        fetch(`${CAMERA_RAW}?${new Date().getTime()}`, {
           method: "GET",
           headers: {
             Authorization: `Basic ${btoa("admin:feathers")}`
